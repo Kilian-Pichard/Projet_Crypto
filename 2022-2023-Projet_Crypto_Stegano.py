@@ -59,7 +59,7 @@ choix_defaut = 1
 saisie = input("Entrez l'operation 1) cacher 2) retrouver [%d] : "%choix_defaut)
 choix = saisie or choix_defaut
 
-if choix == 1:
+if choix == "1":
 	saisie = input("Entrez le nom du fichier [%s]"%nom_defaut)
 	nom_fichier = saisie or nom_defaut
 	saisie = input("Entrez le message [%s]"%message_defaut)
