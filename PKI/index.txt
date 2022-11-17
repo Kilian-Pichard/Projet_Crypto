@@ -1,1 +1,2 @@
 V	341114112808Z		01	unknown	/C=FR/ST=IDF/L=Cergy/O=CYTECH/OU=Organisation de certification des titres ingenieurs/CN=CYTECH INGE CA/emailAddress=web-ca@cy-tech.fr
+V	241116142431Z		02	unknown	/C=FR/ST=IDF/L=Cergy/O=CYTECH/OU=Certification des titres ing\xC3\xA9nieurs cybersecurite/CN=CYTECH INGE Cybersecurite/emailAddress=server-ca@cy-tech.fr
