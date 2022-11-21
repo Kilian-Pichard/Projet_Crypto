@@ -8,7 +8,7 @@ print("Bonjour, bienvenue sur l'application de certification de CY Tech ! Ici, v
 print("Veuillez choisir ce que vous souhaitez faire :")
 
 choix_default = 1
-choix = int(input("1- Créer un certificat\n2- Vérifier la validité de votre certificat\n0- Quitter le programme\nVotre choix [1] : ") or 2)
+choix = int(input("1- Créer un certificat\n2- Vérifier la validité de votre certificat\n0- Quitter le programme\nVotre choix [1] : ") or 1)
 print("")
 if choix == 1:
 	print("Vous avez choisi de créer un certificat.")

@@ -49,28 +49,11 @@ def creer_attestation():
         hashes.SHA256()
     )
     signature_str = signature.hex()  # .isascii() return True
+    print(signature_str)
 
     put_info_on_certif(name, surname, certif_name, filename, signature_str)
     stegano = create_stegano(data_student)
     hide_stegano(filename, stegano)
-
-    with open("PKI/public/public.pem", 'rb') as public_file:
-        public_key = serialization.load_pem_public_key(
-            public_file.read(),
-            backend=default_backend()
-        )
-    # public_key = private_key.public_key() #Other way to get public key from private key
-    # My solution : openssl rsa -in ../private/cybersecurite.key -outform PEM -pubout -out public.pem
-    try:
-        public_key.verify(
-            signature,
-            data_student.encode(),
-            padding.PKCS1v15(),
-            hashes.SHA256()
-        )
-        print('valid!')
-    except InvalidSignature:
-        print('invalid!')
 
     print("L'attestation a bien été créée. Vous la trouverez sous la forme de Prenom_Nom_attestation.png")
     send_email()
@@ -136,8 +119,8 @@ def hide_stegano(filename, stegano):
 
 def send_email():
     print("Envoie de l'attestation par mail...")
-    sender = "Private Person <pichardkil@cy-tech.fr>"
-    receiver = "A Test User <to@example.com>"
+    sender = "thy-breath@weu60erd.mailosaur.net"
+    receiver = "pichardkil@cy-tech.fr"
 
     message = f"""\
     Subject: Hi Mailtrap
@@ -146,11 +129,16 @@ def send_email():
 
     This is a test e-mail message."""
 
-    with smtplib.SMTP("smtp.mailtrap.io", 2525) as server:
+    with smtplib.SMTP_SSL(host="smtp.mailosaur.net", port=587) as server:
+        print(server)
         server.starttls()
-        server.login("9dd8c806d7594a", "31db9d53493130")
+        server.login("weu60erd@mailosaur.net", "giunJyZgcsmK4oL5")
         server.sendmail(sender, receiver, message)
-        print("Mail envoyé")
+
+        #server.starttls()
+        #server.login("weu60erd@mailosaur.net", "giunJyZgcsmK4oL5")
+        #server.sendmail(sender, receiver, message)
+        #print("Mail envoyé")
 
 
 
