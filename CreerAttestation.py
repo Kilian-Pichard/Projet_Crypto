@@ -1,16 +1,21 @@
 #!/usr/bin/python
 # coding=utf8
+import base64
 
 import qrcode
 import pyotp
 import rfc3161ng
 import smtplib
+import ssl
+import time
+import smime
 from PIL import Image, ImageFont, ImageDraw
-from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.exceptions import InvalidSignature
+from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
 
 from Stegano import cacher, recuperer
 
@@ -49,14 +54,13 @@ def creer_attestation():
         hashes.SHA256()
     )
     signature_str = signature.hex()  # .isascii() return True
-    print(signature_str)
 
     put_info_on_certif(name, surname, certif_name, filename, signature_str)
     stegano = create_stegano(data_student)
     hide_stegano(filename, stegano)
 
     print("L'attestation a bien été créée. Vous la trouverez sous la forme de Prenom_Nom_attestation.png")
-    send_email()
+    send_email(filename, mail)
 
 
 def create_qrcode(filename, signature):
@@ -117,28 +121,28 @@ def hide_stegano(filename, stegano):
     tst = tmp[64:stegano_len]
 
 
-def send_email():
-    print("Envoie de l'attestation par mail...")
-    sender = "thy-breath@weu60erd.mailosaur.net"
-    receiver = "pichardkil@cy-tech.fr"
+def send_email(filename, mail):
+    print("Envoie de l'attestation par mail, cela peut prendre quelques secondes...")
+    time.sleep(3)
 
-    message = f"""\
-    Subject: Hi Mailtrap
-    To: {receiver}
-    From: {sender}
+    sender = 'admin@example.com'
+    receivers = [mail]
+    port = 465
+    smtp_server = "mail.kilianpichard.fr"
 
-    This is a test e-mail message."""
+    user = 'test@kilianpichard.fr'
+    password = 'sos$38oMoFe#jPf6'
 
-    with smtplib.SMTP_SSL(host="smtp.mailosaur.net", port=587) as server:
-        print(server)
-        server.starttls()
-        server.login("weu60erd@mailosaur.net", "giunJyZgcsmK4oL5")
-        server.sendmail(sender, receiver, message)
+    with open(filename, "rb") as attestation:
+        attestation_b64 = base64.b64encode(attestation.read())
 
-        #server.starttls()
-        #server.login("weu60erd@mailosaur.net", "giunJyZgcsmK4oL5")
-        #server.sendmail(sender, receiver, message)
-        #print("Mail envoyé")
+    with open('PKI/certs/cybersecurite.pem', 'rb') as public_key:
+        content = "To: " + mail + "\rFrom: test@kilianpichard.fr\r\nSubject: Confirmation de création de l'attestation\r\nFromContent-Type: image/png\r\nContent-Transfer-Encoding: base64\r\n\r\n" + attestation_b64.decode('utf-8')
+        content_encrypted = smime.encrypt(content, public_key.read())
 
-
-
+    context = ssl.create_default_context()
+    with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+        server.login(user, password)
+        server.sendmail(sender, receivers, content_encrypted)
+        server.quit()
+        print("Mail envoyé à " + mail)
