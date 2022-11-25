@@ -2,16 +2,16 @@
 import rfc3161ng
 
 from pyzbar.pyzbar import decode
-from PIL import Image, ImageFont, ImageDraw
+from PIL import Image
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.exceptions import InvalidSignature
 
-from Stegano import cacher, recuperer
+from Stegano import recuperer
 
-stegano_len = 64 + 2686  # 83
+stegano_len = 64 + 2686
 
 
 def extraire_preuve():
@@ -19,7 +19,7 @@ def extraire_preuve():
     filename = ""
     while attestation is None:
         try:
-            filename = input("Veuillez saisir le nom du fichier [Kilian_Pichard_atttestation.png]: ") or "Kilian_Pichard_attestation.png"
+            filename = input("Veuillez saisir le nom du fichier [Tom_Hanks_atttestation.png]: ") or "Tom_Hanks_attestation.png"
             attestation = Image.open(filename)
         except IOError:
             print("Erreur lors de la saisie.")
@@ -42,14 +42,14 @@ def get_stegano(attestation, filename):
     except IOError:
         print("Erreur lors de la récupération des données stéganographies.")
 
-    decoded_list = decode(attestation)
-    signature = decoded_list[0].data
+    decoded_list = decode(attestation) # Read the QR code of the file
+    signature = decoded_list[0].data # Data of the QR Code
 
-    with open("PKI/private/cybersecurite.key", 'rb') as private_file:
-        private_key = serialization.load_pem_private_key(
-            private_file.read(),
-            password=b'passphrase',
-        )
+    # with open("PKI/private/cybersecurite.key", 'rb') as private_file:
+    #     private_key = serialization.load_pem_private_key(
+    #         private_file.read(),
+    #         password=b'passphrase',
+    #     )
 
     with open("PKI/public/public.pem", 'rb') as public_file:
         public_key = serialization.load_pem_public_key(
@@ -63,7 +63,7 @@ def get_stegano(attestation, filename):
     data_student = name+"||"+surname+"||"+certif_name
     signature = bytes.fromhex(signature.decode())
 
-    # public_key = private_key.public_key() #Other way to get public key from private key
+    # public_key = private_key.public_key() # Other way to get public key from private key
     # My solution : openssl rsa -in ../private/cybersecurite.key -outform PEM -pubout -out public.pem
     try:
         public_key.verify(

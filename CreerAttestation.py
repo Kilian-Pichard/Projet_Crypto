@@ -13,9 +13,6 @@ from PIL import Image, ImageFont, ImageDraw
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
-from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
-from email.mime.multipart import MIMEMultipart
 
 from Stegano import cacher, recuperer
 
@@ -26,17 +23,17 @@ stegano_len = 64 + 2686  # 83
 def creer_attestation():
     print("Veuillez entrer l'OTP pour prouver que vous êtes autoriser à avoir accès à ce programme :")
     otp_value = input("- Valeur de l'OTP : ")
-    otp_result = verif_otp(otp_value) or pyotp.TOTP(otp_id).now()  # REMOVE or... IN PRODUCTION
+    otp_result = verif_otp(otp_value) or pyotp.TOTP(otp_id).now()  # REMOVE or pyotp... IN PRODUCTION to ask the good OTP code, because now it's automatically completing with the good OTP code
     while not otp_result: # While OTP result is False, we ask again
         print("\nOTP invalide, veuillez réessayer.")
         otp_value = input("- Valeur de l'OTP : ")
         otp_result = verif_otp(otp_value)
     print("Vous avez accès au programme.")
     print("Pour créer une attestation, il me faut les information suivantes :")
-    surname = input("- Prénom de l'étudiant [Kilian] : ") or "Kilian"
-    name = input("- Nom de l'étudiant [Pichard] : ") or "Pichard"
+    surname = input("- Prénom de l'étudiant [Tom] : ") or "Tom"
+    name = input("- Nom de l'étudiant [Hanks] : ") or "Hanks"
     certif_name = input("- Intitulé de la certification [Ingénieur cybersécurité] : ") or "Ingénieur cybersécurité"
-    mail = input("- Adresse éléctronique de l'étudiant [pichardkil@cy-tech.fr] : ") or "pichardkil@cy-tech.fr"
+    mail = input("- Adresse éléctronique de l'étudiant [tom-hanks-cybersecurity@cy-tech.fr] : ") or "tom-hanks-cybersecurity@cy-tech.fr"
     print("Veuillez patienter pendant la création de l'attestation...")
 
     filename = (surname + "_" + name + "_attestation.png").replace(" ", "_")
@@ -55,11 +52,10 @@ def creer_attestation():
     )
     signature_str = signature.hex()  # .isascii() return True
 
-    put_info_on_certif(name, surname, certif_name, filename, signature_str)
-    stegano = create_stegano(data_student)
-    hide_stegano(filename, stegano)
+    put_info_on_certif(name, surname, certif_name, filename, signature_str) # Creation of the QR Code
+    create_stegano(data_student, filename)
 
-    print("L'attestation a bien été créée. Vous la trouverez sous la forme de Prenom_Nom_attestation.png")
+    print("L'attestation a bien été créée. Vous la trouverez sous le nom de " + filename)
     send_email(filename, mail)
 
 
@@ -81,13 +77,13 @@ def create_qrcode(filename, signature):
 
 def put_info_on_certif(name, surname, certif_name, filename, signature):
     template_certificate = Image.open("template_certificate.png")
-    certificate_name = "Diplôme " + certif_name
+    certificate_name = "Diplôme\n" + certif_name
     certificate_delivery = "Ce certificat est délivré à " + surname + " " + name
-    font_certificate_name = ImageFont.truetype("Almond_Cookies.ttf", 60)
-    font_certificate_delivery = ImageFont.truetype("Almond_Cookies.ttf", 30)
+    font_certificate_name = ImageFont.truetype("Almond_Cookies.ttf", 100)
+    font_certificate_delivery = ImageFont.truetype("Almond_Cookies.ttf", 50)
     certificate_editable = ImageDraw.Draw(template_certificate)
-    certificate_editable.text((400, 400), certificate_name, (37, 30, 10), font=font_certificate_name)
-    certificate_editable.text((650, 620), certificate_delivery, (37, 30, 10), font=font_certificate_delivery)
+    certificate_editable.text((400, 300), certificate_name, (37, 30, 10), font=font_certificate_name)
+    certificate_editable.text((400, 620), certificate_delivery, (37, 30, 10), font=font_certificate_delivery)
     template_certificate.save(filename)
     create_qrcode(filename, signature)
 
@@ -98,7 +94,7 @@ def verif_otp(secret):  # is like CreerPass
     return verify
 
 
-def create_stegano(data_student):
+def create_stegano(data_student, filename):
     supp_chars = "*" * ((64 - len(data_student))-4)
     data_student_64 = data_student + "||" + supp_chars + "||"
     certificate_data = open('tsa.crt', 'rb').read()  # tsa.crt downloaded from https://freetsa.org/files/tsa.crt
@@ -108,7 +104,7 @@ def create_stegano(data_student):
     timestamp_str = tst.hex()
     # timestamp = rfc3161ng.get_timestamp(tst) # Conversion in datetime format
     to_hide = data_student_64 + timestamp_str  # str(timestamp)
-    return to_hide
+    hide_stegano(filename, to_hide)
 
 
 def hide_stegano(filename, stegano):
