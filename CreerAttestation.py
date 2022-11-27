@@ -32,7 +32,7 @@ def creer_attestation():
     print("Pour créer une attestation, il me faut les information suivantes :")
     surname = input("- Prénom de l'étudiant [Tom] : ") or "Tom"
     name = input("- Nom de l'étudiant [Hanks] : ") or "Hanks"
-    certif_name = input("- Intitulé de la certification [Ingénieur cybersécurité] : ") or "Ingénieur cybersécurité"
+    certif_name = input("- Intitulé de l'attestation [Ingénieur cybersécurité] : ") or "Ingénieur cybersécurité"
     mail = input("- Adresse éléctronique de l'étudiant [tom-hanks-cybersecurity@cy-tech.fr] : ") or "tom-hanks-cybersecurity@cy-tech.fr"
     print("Veuillez patienter pendant la création de l'attestation...")
 
