@@ -17,7 +17,6 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from Stegano import cacher, recuperer
 
 otp_id = "CTXRHFP3VSZHIZR5WOJG3RYWCGZKSLVP"
-stegano_len = 64 + 2686  # 83
 
 
 def creer_attestation():
@@ -112,9 +111,6 @@ def hide_stegano(filename, stegano):
     cacher(attestation, stegano)
     attestation.save(filename)
     attestation = Image.open(filename)
-    tmp = recuperer(attestation, stegano_len)
-    student_data = tmp[0:64]
-    tst = tmp[64:stegano_len]
 
 
 def send_email(filename, mail):

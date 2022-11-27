@@ -25,10 +25,10 @@ def extraire_preuve():
             print("Erreur lors de la saisie.")
         continue
 
-    get_stegano(attestation, filename)
+    get_stegano(attestation)
 
 
-def get_stegano(attestation, filename):
+def get_stegano(attestation):
     stegano = recuperer(attestation, stegano_len)
     data_student_64 = stegano[0:64]
     timestamp = stegano[64:stegano_len]
@@ -45,12 +45,6 @@ def get_stegano(attestation, filename):
     decoded_list = decode(attestation) # Read the QR code of the file
     signature = decoded_list[0].data # Data of the QR Code
 
-    # with open("PKI/private/cybersecurite.key", 'rb') as private_file:
-    #     private_key = serialization.load_pem_private_key(
-    #         private_file.read(),
-    #         password=b'passphrase',
-    #     )
-
     with open("PKI/public/public.pem", 'rb') as public_file:
         public_key = serialization.load_pem_public_key(
             public_file.read(),
@@ -62,6 +56,12 @@ def get_stegano(attestation, filename):
     certif_name = data_student_64.split("||")[2]
     data_student = name+"||"+surname+"||"+certif_name
     signature = bytes.fromhex(signature.decode())
+
+    # with open("PKI/private/cybersecurite.key", 'rb') as private_file:
+    #     private_key = serialization.load_pem_private_key(
+    #         private_file.read(),
+    #         password=b'passphrase',
+    #     )
 
     # public_key = private_key.public_key() # Other way to get public key from private key
     # My solution : openssl rsa -in ../private/cybersecurite.key -outform PEM -pubout -out public.pem
